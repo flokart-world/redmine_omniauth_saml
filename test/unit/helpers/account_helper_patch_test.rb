@@ -1,7 +1,7 @@
 require File.expand_path('../../../test_helper', __FILE__)
 
 class AccountHelperPatchTest < ActionView::TestCase
-  include Redmine::OmniAuthSAML::AccountHelperPatch
+  include RedmineOmniauthSaml::AccountHelperPatch
   include Redmine::I18n
 
   context "#label_for_saml_login" do

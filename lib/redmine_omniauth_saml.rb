@@ -1,4 +1,4 @@
-module Redmine::OmniAuthSAML
+module RedmineOmniauthSaml
   class << self
 
     def settings_hash
@@ -27,6 +27,12 @@ module Redmine::OmniAuthSAML
 
     def on_login_callback
       Base.on_login_callback
+    end
+
+    # Patches to existing classes/modules
+    def install_patches!
+      require_dependency File.expand_path('../redmine_omniauth_saml/account_helper_patch', __FILE__)
+      require_dependency File.expand_path('../redmine_omniauth_saml/account_controller_patch', __FILE__)
     end
 
   end
@@ -111,7 +117,7 @@ module Redmine::OmniAuthSAML
       end
 
       def raise_configure_exception
-        raise 'Redmine::OmniAuthSAML must be configured from an initializer. See README of redmine_omniauth_saml for instructions'
+        raise 'RedmineOmniauthSaml must be configured from an initializer. See README of redmine_omniauth_saml for instructions'
       end
 
       def configure_omniauth_saml_middleware
