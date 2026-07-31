@@ -1,4 +1,8 @@
 module RedmineOmniauthSaml
+  # Name of the OmniAuth strategy this plugin registers. Single source of
+  # truth for the request-phase guard and every URL that targets it.
+  PROVIDER = 'saml'.freeze
+
   class << self
 
     def settings_hash
@@ -123,7 +127,7 @@ module RedmineOmniauthSaml
       def configure_omniauth_saml_middleware
         saml_options = configured_saml
         Rails.application.config.middleware.use ::OmniAuth::Builder do
-            provider :saml, saml_options
+            provider PROVIDER, saml_options
         end
       end
     end

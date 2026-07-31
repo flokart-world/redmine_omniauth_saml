@@ -5,7 +5,9 @@
 <% end %>
 
 <div id="saml-login">
-  <%= link_to label_for_saml_login, :controller => "account", :action => "login_with_saml_redirect", :provider => "saml", :origin => back_url %>
+  <%# button_to because the OmniAuth 2 request phase requires a POST
+      carrying an authenticity token. %>
+  <%= button_to label_for_saml_login, saml_request_phase_path(back_url), :method => :post %>
 </div>
 
 <% end %>

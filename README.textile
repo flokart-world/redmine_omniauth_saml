@@ -1,12 +1,12 @@
 h1. Redmine OmniAuth SAML plugin
 
-This plugins adds SAML authentication support for "Redmine":http://www.redmine.org thanks to the "OmniAuth authentication framework":https://github.com/intridea/omniauth and specially thanks to "Redmine Omniauth CAS Plugin":https:https://github.com/jbbarth/redmine_omniauth_cas. 
+This plugins adds SAML authentication support for "Redmine":http://www.redmine.org thanks to the "OmniAuth authentication framework":https://github.com/intridea/omniauth and specially thanks to "Redmine Omniauth CAS Plugin":https:https://github.com/jbbarth/redmine_omniauth_cas.
 
 h2. Install
 
 You can first take a look at general instructions for plugins "here":http://www.redmine.org/wiki/redmine/Plugins.
 
-Note that the plugin is now *only compatible with Redmine 3.0 or higher*. For Redmine 2.0 see 2.0 branch
+Note that this branch is *only compatible with Redmine 6.0 or higher*. Earlier Redmine versions have reached end of life and are not supported.
 
 Then :
 * clone this repository in your plugins/ directory ; if you have a doubt you put it at the good level, you can go to your redmine root directoryand check you have a @plugins/redmine_omniauth_saml/init.rb@ file
@@ -18,6 +18,11 @@ Finally you *must* configure your SAML settings adding a file in @<redmine_folde
 
 Finaly you need to configure some minor options for the plugin to work, in "Administration" > "Plugins" > "Configure" on the OmniAuth SAML plugin line.
 
+
+h2. TODO
+
+* Modernize the test suite: the tests under @test/@ still use shoulda contexts, @ActionController::IntegrationTest@ (removed in Rails 5) and the long-gone @RedmineSAML@ constant, so they cannot run against any supported Redmine version.
+* Once the suite runs again, add regression tests for the OmniAuth 2 flow introduced for Redmine 6: the POST login button, the GET-to-POST bridging interstitial of @login_with_saml_redirect@ (including the provider guard), and the @/saml/metadata@ endpoint.
 
 h2. Donations
 

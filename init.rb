@@ -16,7 +16,7 @@ Redmine::Plugin.register :redmine_omniauth_saml do
   author_url 'mailto:car@cespi.unlp.edu.ar'
   url 'https://github.com/chrodriguez/redmine_omniauth_saml'
   version '0.0.1'
-  requires_redmine :version_or_higher => '2.3.0'
+  requires_redmine :version_or_higher => '6.0.0'
   settings :default => { 'enabled' => 'true', 'label_login_with_saml' => '', 'replace_redmine_login' => false  },
            :partial => 'settings/omniauth_saml_settings'
 end

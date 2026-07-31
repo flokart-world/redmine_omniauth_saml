@@ -18,19 +18,26 @@ module RedmineOmniauthSaml
     end
 
     def login_with_saml_redirect
-      render :text => "Not Found", :status => 404
+      # Reject unregistered providers; without this, a POST to such a path
+      # would fall through the middleware back to this action and loop.
+      return render_404 unless params[:provider] == PROVIDER
+
+      # OmniAuth 2 accepts only POST on the request phase, so GET requests
+      # reach this action instead of the middleware. Render an interstitial
+      # that re-enters the flow with an auto-submitted POST.
+      render :layout => false
     end
 
     def login_with_saml_callback
       auth = request.env["omniauth.auth"]
       #user = User.find_by_provider_and_uid(auth["provider"], auth["uid"])
-      user = User.find_or_create_from_omniauth(auth) 
+      user = User.find_or_create_from_omniauth(auth)
 
       # taken from original AccountController
       # maybe it should be splitted in core
       if user.blank?
         logger.warn "Failed login for '#{auth[:uid]}' from #{request.remote_ip} at #{Time.now.utc}"
-        error = l(:notice_account_invalid_creditentials).sub(/\.$/, '')
+        error = l(:notice_account_invalid_credentials).sub(/\.$/, '')
         if saml_settings["enabled"]
           link = self.class.helpers.link_to(l(:text_logout_from_saml), saml_logout_url(home_url), :target => "_blank")
           error << ". #{l(:text_full_logout_proposal, :value => link)}"

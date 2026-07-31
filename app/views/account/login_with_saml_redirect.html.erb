@@ -1,0 +1,12 @@
+<%# Bridges GET entries (e.g. the replace_redmine_login redirect) into the
+    POST-only OmniAuth 2 request phase. The target is fixed to the one
+    strategy this plugin registers, so the bridge cannot be pointed at
+    another strategy, nor loop through this action again via an unregistered
+    provider name. %>
+<%# :local => true because Redmine does not call config.load_defaults, so
+    form_with falls back to ActionView's remote-by-default; an XHR submission
+    here could not follow the redirect to the IdP. %>
+<%= form_with :url => saml_request_phase_path(params[:origin]), :method => :post, :local => true, :id => 'saml-redirect-form' do %>
+  <noscript><%= submit_tag l(:label_login_with_saml) %></noscript>
+<% end %>
+<%= javascript_tag "document.getElementById('saml-redirect-form').submit();" %>
