@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        redmine: ['6.0-stable', '6.1-stable']
+        redmine: ['6.0-stable', '6.1-stable', '7.0-stable']
     services:
       mariadb:
         image: mariadb:10.11
