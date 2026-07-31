@@ -3,7 +3,7 @@
 Notable changes to this plugin are documented in this file. The format is
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## 0.1.0 (unreleased)
+## 0.1.0 - 2026-08-01
 
 First release of the [Flokart World fork](https://github.com/flokart-world/redmine_omniauth_saml).
 Changes are relative to commit `b102cb51dc293a38aa0c5ebfe8d16aaecf52bec3`
