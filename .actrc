@@ -1,0 +1,3 @@
+# Under act the job container joins the service network, where the database
+# is reachable by its service name instead of a published localhost port.
+--env DB_HOST=mariadb

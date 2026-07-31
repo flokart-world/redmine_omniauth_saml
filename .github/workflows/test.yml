@@ -1,0 +1,87 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        redmine: ['6.0-stable', '6.1-stable']
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: redmine_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Check out the plugin
+        uses: actions/checkout@v4
+
+      # Plain git instead of actions/checkout so the workflow also runs under
+      # act, where no GitHub token is available for the checkout action.
+      - name: Check out Redmine
+        run: git clone --depth 1 --branch ${{ matrix.redmine }} https://github.com/redmine/redmine.git redmine
+
+      - name: Place the plugin into the Redmine tree
+        run: |
+          mkdir -p redmine/plugins/redmine_omniauth_saml
+          find . -mindepth 1 -maxdepth 1 ! -name redmine -exec cp -a {} redmine/plugins/redmine_omniauth_saml/ \;
+
+      # Must precede the Ruby setup: Redmine's Gemfile selects the database
+      # adapter gem from config/database.yml, so the file has to exist before
+      # bundle install runs.
+      - name: Prepare the database configuration
+        working-directory: redmine
+        # DB_HOST falls back to the published service port on GitHub runners;
+        # under act the job runs on the service network, where the service is
+        # reachable by its name instead (see .actrc).
+        run: |
+          cat > config/database.yml <<EOF
+          test:
+            adapter: mysql2
+            host: ${DB_HOST:-127.0.0.1}
+            username: root
+            password: root
+            database: redmine_test
+          EOF
+
+      - name: Install packages needed to build native gems
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential default-libmysqlclient-dev
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: redmine
+
+      - name: Install the SAML initializer
+        run: cp redmine/plugins/redmine_omniauth_saml/test/support/saml_initializer.rb redmine/config/initializers/saml.rb
+
+      - name: Prepare the application
+        working-directory: redmine
+        env:
+          RAILS_ENV: test
+        run: |
+          bundle exec rake generate_secret_token
+          bundle exec rake db:migrate
+          bundle exec rake redmine:plugins:migrate
+
+      - name: Run the plugin tests
+        working-directory: redmine
+        env:
+          RAILS_ENV: test
+        run: bundle exec rake redmine:plugins:test NAME=redmine_omniauth_saml

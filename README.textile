@@ -21,7 +21,16 @@ Finally you *must* configure your SAML settings adding a file in @<redmine_folde
 Finaly you need to configure some minor options for the plugin to work, in "Administration" > "Plugins" > "Configure" on the OmniAuth SAML plugin line.
 
 
-h2. TODO
+h2. Known issues
 
-* Modernize the test suite: the tests under @test/@ still use shoulda contexts, @ActionController::IntegrationTest@ (removed in Rails 5) and the long-gone @RedmineSAML@ constant, so they cannot run against any supported Redmine version.
-* Once the suite runs again, add regression tests for the OmniAuth 2 flow introduced for Redmine 6: the POST login button, the GET-to-POST bridging interstitial of @login_with_saml_redirect@ (including the provider guard), and the @/saml/metadata@ endpoint.
+* SP-initiated single logout (used when @signout_url@ is configured) sends a wrong NameID to the identity provider: the configured field name itself (e.g. @mail@) instead of the user's value for that field. Deployments leaving @signout_url@ empty are unaffected.
+
+h2. Running the tests
+
+The plugin ships an integration test suite which runs inside a Redmine host application. From your redmine root directory:
+
+<pre>
+RAILS_ENV=test bundle exec rake redmine:plugins:test NAME=redmine_omniauth_saml
+</pre>
+
+The GitHub Actions workflow in @.github/workflows/test.yml@ prepares such an application from scratch for each supported Redmine branch with MariaDB, and can also be executed locally with "act":https://github.com/nektos/act by running @act push@ from the plugin root. Note for act users: recent Docker releases reject the runner-image @/var/run@ symlink during action setup ("nektos/act#6092":https://github.com/nektos/act/issues/6092); until the Docker-side fix ships, use a runner image where @/var/run@ is a real directory.

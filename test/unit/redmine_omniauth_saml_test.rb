@@ -1,39 +1,80 @@
 require File.expand_path('../../test_helper', __FILE__)
 
-class RedmineOmniAuthSAMLTest < ActiveSupport::TestCase
-  context "#enabled?" do
-    should "return enabled? if setting is set" do
-      Setting["plugin_redmine_omniauth_saml"]["enabled"] = false
-      assert !RedmineOmniauthSaml.enabled?
-    end
+class RedmineOmniauthSamlTest < ActiveSupport::TestCase
+  include RedmineOmniauthSaml::TestHelper
+
+  setup do
+    setup_saml
   end
 
-  context "#settings_hash" do
-    should "return all needed attributes" do
-      %w{enabled onthefly_creation replace_redmine_login label_login_with_saml}.each do |key|
-        assert RedmineOmniauthSaml.settings_hash.key?(key), "Expected key #{key} not present in settings_hash"
-      end
-    end
+  teardown do
+    teardown_saml
   end
 
-  context "#onthefly_creation?" do
-    should "return onthefly_creation false if setting is set and plugin is disabled" do
-      Setting["plugin_redmine_omniauth_saml"]["onthefly_creation"] = true
-      assert !RedmineOmniauthSaml.onthefly_creation?
-    end
-
-    should "return onthefly_creation if setting is set and plugin is enabled" do
-      Setting["plugin_redmine_omniauth_saml"]["onthefly_creation"] = true
-      Setting["plugin_redmine_omniauth_saml"]["enabled"] = true
-      assert RedmineOmniauthSaml.onthefly_creation?
-    end
+  test "PROVIDER names the registered strategy" do
+    assert_equal 'saml', RedmineOmniauthSaml::PROVIDER
   end
 
-  context "#label_login_with_saml" do
-    should "return label_login_with_saml if setting is set" do
-      val = '1234'
-      Setting["plugin_redmine_omniauth_saml"]["label_login_with_saml"] = val
-      assert_equal val, RedmineOmniauthSaml.label_login_with_saml
-    end
+  test "enabled? follows the plugin setting" do
+    assert RedmineOmniauthSaml.enabled?
+    setup_saml('enabled' => false)
+    assert_not RedmineOmniauthSaml.enabled?
+  end
+
+  test "onthefly_creation? requires the plugin to be enabled" do
+    setup_saml('onthefly_creation' => true)
+    assert RedmineOmniauthSaml.onthefly_creation?
+    setup_saml('enabled' => false, 'onthefly_creation' => true)
+    assert_not RedmineOmniauthSaml.onthefly_creation?
+  end
+
+  test "user_attributes_from_saml resolves the configured attribute mapping" do
+    omniauth = OmniAuth::AuthHash.new(
+      :extra => {
+        :raw_info => {
+          :username  => "jdoe",
+          :email     => "jdoe@example.net",
+          :firstname => "John",
+          :lastname  => "Doe"
+        }
+      }
+    )
+    attributes = RedmineOmniauthSaml.user_attributes_from_saml(omniauth)
+    assert_equal "jdoe", attributes[:login]
+    assert_equal "jdoe@example.net", attributes[:mail]
+    assert_equal "John", attributes[:firstname]
+    assert_equal "Doe", attributes[:lastname]
+  end
+
+  test "user_attributes_from_saml resolves mappings of arbitrary depth" do
+    RedmineOmniauthSaml::Base.saml = RedmineOmniauthSaml::TEST_SAML_SETTINGS.merge(
+      :attribute_mapping => {
+        :login      => 'one.two.three.four.levels.username',
+        :mail       => 'one.two.three.four.levels.email',
+        :firstname  => 'one.two.three.four.levels.firstname',
+        :lastname   => 'one.two.three.four.levels.lastname'
+      }
+    )
+    omniauth = OmniAuth::AuthHash.new(
+      :one => {
+        :two => {
+          :three => {
+            :four => {
+              :levels => {
+                :username  => "jdoe",
+                :email     => "jdoe@example.net",
+                :firstname => "John",
+                :lastname  => "Doe"
+              }
+            }
+          }
+        }
+      }
+    )
+    attributes = RedmineOmniauthSaml.user_attributes_from_saml(omniauth)
+    assert_equal "jdoe", attributes[:login]
+    assert_equal "jdoe@example.net", attributes[:mail]
+    assert_equal "John", attributes[:firstname]
+    assert_equal "Doe", attributes[:lastname]
   end
 end

@@ -152,6 +152,10 @@ module RedmineOmniauthSaml
         session[:transaction_id] = logout_request.uuid
         logger.info "New SP SLO for userid '#{User.current.login}' transactionid '#{session[:transaction_id]}'"
 
+        # FIXME: this fallback never fires because validate_configuration!
+        # requires :name_identifier_value, so the literal field name ends up
+        # as the NameID sent to the IdP. Left as-is until SP-initiated SLO
+        # is actually needed.
         settings[:name_identifier_value] ||= name_identifier_value
 
         relay_state = home_url # url_for controller: 'saml', action: 'index'

@@ -1,11 +1,11 @@
 #saml-login { margin:3em auto 0; font-size:16px; font-weight:bold; text-align:center; }
 #saml-login form { display:inline; }
-#saml-login a, #saml-login a:hover, #saml-login button {
+#saml-login a, #saml-login a:hover, #saml-login input[type=submit] {
   display:inline-block; padding:0.4em 1em; max-width:800px; text-align:center;
   color:#fff; background-color:#78cc01; text-decoration:none !important; text-shadow:1px 1px 1px #666;
   -moz-border-radius:20px; -webkit-border-radius:20px; border-radius:20px;
 }
-#saml-login button { border:none; font-size:inherit; font-weight:inherit; font-family:inherit; cursor:pointer; }
-#saml-login a:hover, #saml-login button:hover { background-color:#70c600; }
-#saml-login a:active, #saml-login button:active { position:relative; top:1px; }
+#saml-login input[type=submit] { border:none; font-size:inherit; font-weight:inherit; font-family:inherit; cursor:pointer; }
+#saml-login a:hover, #saml-login input[type=submit]:hover { background-color:#70c600; }
+#saml-login a:active, #saml-login input[type=submit]:active { position:relative; top:1px; }
 #login-form table { margin-top:2em; }
