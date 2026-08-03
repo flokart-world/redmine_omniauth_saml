@@ -15,7 +15,7 @@ Redmine::Plugin.register :redmine_omniauth_saml do
   author 'Flokart World, Inc.'
   author_url 'https://github.com/flokart-world'
   url 'https://github.com/flokart-world/redmine_omniauth_saml'
-  version '0.1.0'
+  version '0.1.1'
   requires_redmine :version_or_higher => '6.0.0'
   settings :default => { 'enabled' => 'true', 'label_login_with_saml' => '', 'replace_redmine_login' => false  },
            :partial => 'settings/omniauth_saml_settings'

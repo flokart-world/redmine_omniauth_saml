@@ -3,6 +3,16 @@
 Notable changes to this plugin are documented in this file. The format is
 based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.1.1 - Unreleased
+
+### Fixed
+
+- On Redmine 7, every application boot emitted a deprecation warning
+  saying `ActiveSupport::Configurable` is deprecated and will be removed
+  in Rails 8.2. The warning came from omniauth-rails_csrf_protection 1.x;
+  the plugin now depends on the 2.x series, which no longer relies on the
+  deprecated module.
+
 ## 0.1.0 - 2026-08-01
 
 First release of the [Flokart World fork](https://github.com/flokart-world/redmine_omniauth_saml).
